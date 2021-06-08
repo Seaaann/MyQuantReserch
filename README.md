@@ -1,6 +1,6 @@
 # MyQuantReserch
 
-Some useless and Finance Quant Research.
+Some Useless and Delayed Finance Quant Research.
 
 
 
