@@ -1,2 +1,7 @@
 # MyQuantReserch
-QuantFinanceResearch
+
+Some useless and Finance Quant Research.
+
+
+
+
