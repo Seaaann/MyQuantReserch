@@ -27,13 +27,24 @@ def get_category_all_funds(category):
     return df, fund_code
 
 
-def get_fund_net_worth(fund_code, start_date, end_date):
+def get_fund_net_worth(fund_code, start_date, end_date, fund_category):
 
     start_date = pd.to_datetime(start_date, format='%Y/%m/%d')
     end_date = pd.to_datetime(end_date, format='%Y/%m/%d')
 
-    df = ak.fund_em_open_fund_info(fund=fund_code)
-    mask = (df['净值日期'] > start_date) & (df['净值日期'] <= end_date)
+    if fund_category == 'open':
+        df = ak.fund_em_open_fund_info(fund=fund_code)
+    elif fund_category == 'money':
+        df = ak.fund_em_money_fund_info(fund=fund_code)
+        df['净值日期'] = pd.to_datetime(df['净值日期'], format='%Y/%m/%d')
+    elif fund_category == 'financial':
+        df = ak.fund_em_financial_fund_info(fund=fund_code)
+        df['净值日期'] = pd.to_datetime(df['净值日期'], format='%Y/%m/%d')
+    elif fund_category == 'etf':
+        df = ak.fund_em_etf_fund_info(fund=fund_code)
+        df['净值日期'] = pd.to_datetime(df['净值日期'], format='%Y/%m/%d')
+
+    mask = (df['净值日期'] >= start_date) & (df['净值日期'] <= end_date)
     df = df.loc[mask].reset_index().drop('index', axis=1)
 
     return df
