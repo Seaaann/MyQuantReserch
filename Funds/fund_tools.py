@@ -138,7 +138,15 @@ def get_fund_cumulative_return(fund_code, start_date, end_date):
     return df
 
 
-def sw_industry_return_plot(start_date, end_date, year_start_date='2021-01-01'):
+def sw_industry_return_plot(start_date, end_date, year_start_date='2021-01-01', save_pic=True):
+
+    """
+    :param start_date: string, start date of the week
+    :param end_date: string, end date of the week
+    :param year_start_date: string, start date of the year
+    :param save_pic: bool, save picture or not
+    :return: dataframe
+    """
 
     start_date = pd.to_datetime(start_date, format='%Y/%m/%d')
     end_date = pd.to_datetime(end_date, format='%Y/%m/%d')
@@ -167,6 +175,9 @@ def sw_industry_return_plot(start_date, end_date, year_start_date='2021-01-01'):
     industry_return_df['YearlyReturn'] = industry_yearly_return
     industry_return_df.index = industry_code
 
+    matplotlib.rc("font",family='PingFang HK')
+
+
     fig = plt.figure(figsize=(15,10))
 
     plt.subplot(1,2,1)
@@ -189,7 +200,59 @@ def sw_industry_return_plot(start_date, end_date, year_start_date='2021-01-01'):
     plt.title(r'今年以来收益率')
     plt.yticks(industry_return_df.Industry, fontproperties = 'PingFang HK',fontsize = 15);
 
+    if save_pic:
+        plt.savefig('申万行业收益率.png', dpi=500)
+
     return industry_return_df
 
+
+def get_index_price(code, start_date, end_date, year_start_date='2021-01-01'):
+
+    start_date = pd.to_datetime(start_date, format='%Y/%m/%d')
+    end_date = pd.to_datetime(end_date, format='%Y/%m/%d')
+    year_start_date = pd.to_datetime(year_start_date, format='%Y/%m/%d')
+
+    df = ak.stock_zh_index_daily(symbol=code).reset_index()
+    df['date'] = pd.to_datetime(df['date'], format='%Y/%m/%d')
+    df['date'] = df['date'].apply(lambda x: x.replace(tzinfo=None))
+    mask = (df['date'] >= start_date) & (df['date'] <= end_date)
+    df = df.loc[mask].set_index('date')
+
+    return df
+
+def get_index_code_and_name():
+
+    name_code_dict = ak.stock_zh_index_spot().set_index('名称')['代码'].to_dict()
+
+    return name_code_dict
+
+
+def main_index_plot(code_list, start_date, end_date, year_start_date='2021-01-01', save_pic=True):
+
+    index_df = pd.DataFrame()
+    for code in code_list:
+        closePrice = get_index_price(code, start_date, end_date)['close']
+        index_df[code] = closePrice
+
+    fig,ax = plt.subplots(figsize=(12,8))
+
+    ax.plot(df.index, df.sh000001, label='上证指数')
+    ax.plot(df.index, df.sz399006, label='创业板指')
+
+    ax.set_ylabel('上证&创业扳指', size=15)
+
+    ax.legend()
+
+    ax.set_xlabel("year",fontsize=14)
+
+    ax2=ax.twinx()
+    ax2.plot(df.index, df.sh000300, 'g-', label='沪深300')
+    ax2.set_ylabel('沪深300', size=15)
+    ax2.legend(loc=2)
+
+    if save_pic:
+        plt.savefig('主要指数走势.png', dpi=500)
+
+    return index_df
 
 
