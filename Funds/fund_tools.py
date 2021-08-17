@@ -1,6 +1,11 @@
 import numpy as np
 import pandas as pd
 import akshare as ak
+import matplotlib.pyplot as plt
+import matplotlib
+
+matplotlib.rc("font",family='PingFang HK')
+
 
 def get_fund_categories(open_fund=False):
 
@@ -132,6 +137,59 @@ def get_fund_cumulative_return(fund_code, start_date, end_date):
 
     return df
 
+
+def sw_industry_return_plot(start_date, end_date, year_start_date='2021-01-01'):
+
+    start_date = pd.to_datetime(start_date, format='%Y/%m/%d')
+    end_date = pd.to_datetime(end_date, format='%Y/%m/%d')
+    year_start_date = pd.to_datetime(year_start_date, format='%Y/%m/%d')
+
+    industry_name = ak.sw_index_spot()['指数名称'].values
+    industry_code = ak.sw_index_spot()['指数代码'].values
+
+    industry_return_df = pd.DataFrame()
+    industry_yearly_return = []
+    industry_weekly_return = []
+
+    for i in range(len(industry_code)):
+        df1 = ak.sw_index_daily(industry_code[i], start_date, end_date)
+        temp_df1 = df1.set_index('index_code').iloc[:, 3:].astype(float)['close']
+        industry_return = (temp_df1[0] - temp_df1[-1])/temp_df1[-1]
+        industry_weekly_return.append(industry_return)
+
+        df2 = ak.sw_index_daily(industry_code[i], year_start_date, end_date)
+        temp_df2 = df2.set_index('index_code').iloc[:, 3:].astype(float)['close']
+        industry_return = (temp_df2[0] - temp_df2[-1])/temp_df2[-1]
+        industry_yearly_return.append(industry_return)
+
+    industry_return_df['Industry'] = industry_name
+    industry_return_df['WeeklyReturn'] = industry_weekly_return
+    industry_return_df['YearlyReturn'] = industry_yearly_return
+    industry_return_df.index = industry_code
+
+    fig = plt.figure(figsize=(15,10))
+
+    plt.subplot(1,2,1)
+    industry_return_df.sort_values('WeeklyReturn', ascending=True, inplace=True)
+    plt.barh(industry_return_df.Industry, industry_return_df.WeeklyReturn)
+    for i in range(len(industry_return_df.WeeklyReturn)):
+        value_label = str(industry_return_df.WeeklyReturn[i]*100)[:5] + '%'
+        plt.annotate(value_label, xy=(industry_return_df.WeeklyReturn[i],
+                                      industry_return_df.Industry[i]), ha='center', va='center', size=15, color='r')
+    plt.title(r'本周收益率')
+    plt.yticks(industry_return_df.Industry, fontproperties = 'PingFang HK',fontsize = 15);
+
+    plt.subplot(1,2,2)
+    industry_return_df.sort_values('YearlyReturn', ascending=True, inplace=True)
+    plt.barh(industry_return_df.Industry, industry_return_df.YearlyReturn)
+    for i in range(len(industry_return_df.WeeklyReturn)):
+        value_label = str(industry_return_df.YearlyReturn[i]*100)[:5] + '%'
+        plt.annotate(value_label, xy=(industry_return_df.YearlyReturn[i],
+                                      industry_return_df.Industry[i]), ha='center', va='center', size=15, color='r')
+    plt.title(r'今年以来收益率')
+    plt.yticks(industry_return_df.Industry, fontproperties = 'PingFang HK',fontsize = 15);
+
+    return industry_return_df
 
 
 
