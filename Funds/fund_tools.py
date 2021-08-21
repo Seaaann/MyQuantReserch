@@ -41,7 +41,7 @@ def get_fund_net_worth(fund_code, start_date, end_date, fund_category):
     :param fund_category: string, input either ['open', 'money', 'financial', 'etf']
     :return: dataframe, sliced dataframe between start_date and end_date
     """
-
+    
     start_date = pd.to_datetime(start_date, format='%Y/%m/%d')
     end_date = pd.to_datetime(end_date, format='%Y/%m/%d')
 
@@ -65,7 +65,7 @@ def get_fund_net_worth(fund_code, start_date, end_date, fund_category):
 def get_open_fund_rank(category, rank, order_by, ascending=False):
 
     """
-    :param category: string, input ['股票型','混合型',"指数型",'QDII','LOF','FOF' ]
+    :param category: string, input ['股票型','混合型',"指数型",'QDII','LOF','FOF']
     :param rank: int, return how many rows of the dataframe
     :param order_by: string, input ['近1周', '近1月', '近3月',
        '近6月', '近1年', '近2年', '近3年']
@@ -74,21 +74,19 @@ def get_open_fund_rank(category, rank, order_by, ascending=False):
     """
 
     if category == '股票型':
-        df = ak.fund_em_open_fund_rank(symbol="股票型")
+        df = ak.fund_em_open_fund_rank(symbol="股票型").sort_values(by=[order_by], ascending=ascending)
     elif category == '混合型':
-        df = ak.fund_em_open_fund_rank(symbol="混合型")
+        df = ak.fund_em_open_fund_rank(symbol="混合型").sort_values(by=[order_by], ascending=ascending)
     elif category == '债券型':
-        df = ak.fund_em_open_fund_rank(symbol="债券型")
+        df = ak.fund_em_open_fund_rank(symbol="债券型").sort_values(by=[order_by], ascending=ascending)
     elif category == "指数型":
-        df = ak.fund_em_open_fund_rank(symbol="指数型")
+        df = ak.fund_em_open_fund_rank(symbol="指数型").sort_values(by=[order_by], ascending=ascending)
     elif category == 'QDII':
-        df = ak.fund_em_open_fund_rank(symbol="QDII")
+        df = ak.fund_em_open_fund_rank(symbol="QDII").sort_values(by=[order_by], ascending=ascending)
     elif category == 'LOF':
-        df = ak.fund_em_open_fund_rank(symbol="LOF")
+        df = ak.fund_em_open_fund_rank(symbol="LOF").sort_values(by=[order_by], ascending=ascending)
     elif category == 'FOF':
-        df = ak.fund_em_open_fund_rank(symbol="FOF")
-
-    df = df.sort_values(by=[order_by], ascending=ascending)
+        df = ak.fund_em_open_fund_rank(symbol="FOF").sort_values(by=[order_by], ascending=ascending)
 
     return df.head(rank)
 
@@ -119,10 +117,7 @@ def get_money_fund_rank(rank, order_by, ascending=False):
     :return: dataframe, with specific sorted dataframe
     """
 
-    df = ak.fund_em_money_rank()
-
-    df = df.sort_values(by=[order_by], ascending=ascending)
-
+    df = ak.fund_em_money_rank().sort_values(by=[order_by], ascending=ascending)
     return df.head(rank)
 
 
@@ -187,7 +182,7 @@ def sw_industry_return_plot(start_date, end_date, year_start_date='2021-01-01', 
         value_label = str(industry_return_df.WeeklyReturn[i]*100)[:5] + '%'
         plt.annotate(value_label, xy=(industry_return_df.WeeklyReturn[i],
                                       industry_return_df.Industry[i]), ha='center', va='center', size=15, color='r')
-    plt.title(r'本周收益率')
+    plt.title(r'本周收益率' + str(start_date) + '~' + str(end_date))
     plt.yticks(industry_return_df.Industry, fontproperties = 'PingFang HK',fontsize = 15);
 
     plt.subplot(1,2,2)
@@ -197,7 +192,7 @@ def sw_industry_return_plot(start_date, end_date, year_start_date='2021-01-01', 
         value_label = str(industry_return_df.YearlyReturn[i]*100)[:5] + '%'
         plt.annotate(value_label, xy=(industry_return_df.YearlyReturn[i],
                                       industry_return_df.Industry[i]), ha='center', va='center', size=15, color='r')
-    plt.title(r'今年以来收益率')
+    plt.title(r'今年以来收益率'+ str((year_start_date.year)))
     plt.yticks(industry_return_df.Industry, fontproperties = 'PingFang HK',fontsize = 15);
 
     if save_pic:
@@ -254,5 +249,30 @@ def main_index_plot(code_list, start_date, end_date, year_start_date='2021-01-01
         plt.savefig('主要指数走势.png', dpi=500)
 
     return index_df
+
+
+def current_open_fund_mergered():
+    
+    fund_em_open_fund_daily_df = ak.fund_em_open_fund_daily()
+    fund_em_fund_name_df = ak.fund_em_fund_name()
+    
+    df = pd.merge(fund_em_open_fund_daily_df, fund_em_fund_name_df, on='基金代码')
+    column_list = [0,1,2,3,4,5,6,7,8,9,10,13]    
+    
+    df = df.iloc[:, column_list]
+    
+    df['基金大类'] = np.nan
+    l = ['债券型-中短债', '债券型-可转债', '债券型-混合债', '债券型-长债', '指数型-股票', 
+     '混合型-偏债', '混合型-偏股', '混合型-平衡', '混合型-灵活', '股票型' ]
+    
+    for i in range(len(df)):
+        if df['基金类型'].values[i] in l:
+            df['基金大类'][i] = df['基金类型'].values[i][0:3]
+        else:
+            df['基金大类'][i] = df['基金类型'].values[i]
+
+    
+    return df
+
 
 
