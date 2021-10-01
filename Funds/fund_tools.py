@@ -322,3 +322,13 @@ def AIP_weekly(code, start_date, end_date, fund_category, fixed_investment, freq
         return fund_net_value
     else:
         return Stat_df
+    
+    
+def AIP_Weekly_Plans(Freq, code, start_date, end_date, fund_category, fixed_investment, df=False):
+    
+    df = pd.DataFrame()
+    
+    for freq in Freq:
+        df = df.append(AIP_weekly(code, start_date=start_date, end_date=end_date, fund_category=fund_category, fixed_investment=fixed_investment, freq=freq, df=False))
+        
+    return df
