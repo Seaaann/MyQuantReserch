@@ -276,7 +276,7 @@ def current_open_fund_mergered():
 
 
 
-def AIP_weekly(code, start_date, end_date, fund_category, fixed_investment, freq='Monday', df=False):
+def AIP_Weekly(code, start_date, end_date, fund_category, fixed_investment, freq='Monday', df=False):
     
     
     fund_net_value = get_fund_net_worth(code, start_date=start_date, end_date=end_date, fund_category=fund_category)
@@ -384,3 +384,17 @@ def Max_AIP_weekly(code, start_date, end_date, fund_category, fixed_investment, 
         return fund_net_value
     else:
         return Stat_df
+    
+    
+def Max_AIP_Weekly_Plans(code, start_date, end_date, fund_category, fixed_investment, upper_threshold, lower_threshold):
+    
+    df = pd.DataFrame()
+    threshold_list = list(itertools.product(lower_threshold, upper_threshold))
+    for i in range(len(threshold_list)):
+
+        df = df.append(Max_AIP_weekly(code, start_date=start_date, end_date=end_date, fund_category=fund_category, fixed_investment=fixed_investment, 
+                       Threshold=threshold_list[i], df=False))
+        
+    return df
+
+
