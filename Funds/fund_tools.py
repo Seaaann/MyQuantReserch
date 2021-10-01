@@ -276,7 +276,7 @@ def current_open_fund_mergered():
 
 
 
-def AIP_weekly(code, start_date, end_date, fund_category, fixed_investment, freq='Monday'):
+def AIP_weekly(code, start_date, end_date, fund_category, fixed_investment, freq='Monday', df=False):
     
     
     fund_net_value = get_fund_net_worth(code, start_date=start_date, end_date=end_date, fund_category=fund_category)
@@ -294,10 +294,13 @@ def AIP_weekly(code, start_date, end_date, fund_category, fixed_investment, freq
     fund_net_value['累计份额'] = fund_net_value['购买份额'].cumsum()
     fund_net_value['平均成本'] = fund_net_value['累计定投金额(本金)']/fund_net_value['累计份额']
 
-
-
     fund_net_value['累计收益'] = (fund_net_value['单位净值'] - fund_net_value['平均成本']) * fund_net_value['累计份额']
-    fund_net_value['持有天数'] = (fund_net_value['净值日期'] - fund_net_value['净值日期'][0]).dt.days+1
+    
+    start_invest = fund_net_value['定投金额(本金)'].values.nonzero()[0][0]
+    fund_net_value['持有天数'] = (fund_net_value['净值日期'] - fund_net_value['净值日期'][start_invest]).dt.days+1
+    for i in range(len(fund_net_value['持有天数'])):
+        if fund_net_value['持有天数'][i] < 0:
+            fund_net_value['持有天数'][i] = 0
     fund_net_value['年化收益率'] = ((fund_net_value['累计收益'] + fund_net_value['累计定投金额(本金)'])/fund_net_value['累计定投金额(本金)'])**(365/fund_net_value['持有天数'])-1
 
     fund_net_value['累计收益率'] = fund_net_value['累计收益']/fund_net_value['累计定投金额(本金)']
@@ -313,6 +316,9 @@ def AIP_weekly(code, start_date, end_date, fund_category, fixed_investment, freq
         '累计收益' : '%.3f' % fund_net_value['累计收益'].values[-1],
         '累计收益率' : '%.3f' % fund_net_value['累计收益率'].values[-1],
         '年化收益率' : '%.3f' % fund_net_value['年化收益率'].values[-1]
-    }, index=['Statistics'])
+    }, index=['Plan'])
     
-    return Stat_df
+    if df:
+        return fund_net_value
+    else:
+        return Stat_df
