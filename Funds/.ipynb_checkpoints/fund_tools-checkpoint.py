@@ -322,3 +322,65 @@ def AIP_weekly(code, start_date, end_date, fund_category, fixed_investment, freq
         return fund_net_value
     else:
         return Stat_df
+    
+    
+def AIP_Weekly_Plans(Freq, code, start_date, end_date, fund_category, fixed_investment, df=False):
+    
+    df = pd.DataFrame()
+    
+    for freq in Freq:
+        df = df.append(AIP_weekly(code, start_date=start_date, end_date=end_date, fund_category=fund_category, fixed_investment=fixed_investment, freq=freq, df=False))
+        
+    return df
+
+def Max_AIP_weekly(code, start_date, end_date, fund_category, fixed_investment, Threshold=(-3.0, 2.0), df=False):
+    
+    fund_net_value = get_fund_net_worth(code, start_date=start_date, end_date=end_date, fund_category=fund_category)
+    
+    fund_net_value['WeekDay'] = pd.to_datetime(fund_net_value['净值日期']).dt.day_name()
+    
+    fund_net_value['定投金额(本金)'] = 0
+    fund_net_value['累计定投金额(本金)'] = fund_net_value['定投金额(本金)'].cumsum()
+        
+    for i in range(len(fund_net_value['日增长率'])):
+        if fund_net_value['日增长率'].values[i] <= Threshold[0]:
+            fund_net_value['定投金额(本金)'][i] = fixed_investment
+            fund_net_value['累计定投金额(本金)'] = fund_net_value['定投金额(本金)'].cumsum()
+        elif (fund_net_value['日增长率'].values[i] >= Threshold[1]) & (fund_net_value['累计定投金额(本金)'].values[i-1] > fixed_investment):
+            fund_net_value['定投金额(本金)'][i] = -fixed_investment
+            fund_net_value['累计定投金额(本金)'] = fund_net_value['定投金额(本金)'].cumsum()
+
+    fund_net_value['购买份额'] = fund_net_value['定投金额(本金)']/fund_net_value['单位净值']
+    fund_net_value['累计份额'] = fund_net_value['购买份额'].cumsum()
+    fund_net_value['平均成本'] = fund_net_value['累计定投金额(本金)']/fund_net_value['累计份额']
+
+    fund_net_value['累计收益'] = (fund_net_value['单位净值'] - fund_net_value['平均成本']) * fund_net_value['累计份额']
+    
+    start_invest = fund_net_value['定投金额(本金)'].values.nonzero()[0][0]
+    fund_net_value['持有天数'] = (fund_net_value['净值日期'] - fund_net_value['净值日期'][start_invest]).dt.days+1
+    for i in range(len(fund_net_value['持有天数'])):
+        if fund_net_value['持有天数'][i] < 0:
+            fund_net_value['持有天数'][i] = 0
+    fund_net_value['年化收益率'] = ((fund_net_value['累计收益'] + fund_net_value['累计定投金额(本金)'])/fund_net_value['累计定投金额(本金)'])**(365/fund_net_value['持有天数'])-1
+
+    fund_net_value['累计收益率'] = fund_net_value['累计收益']/fund_net_value['累计定投金额(本金)']
+    
+    Stat_df = pd.DataFrame({
+        '基金代码': code,
+        '持有天数': fund_net_value['持有天数'].values[-1],
+        '触发投资门槛(低买入)': Threshold[0],
+        '触发投资门槛(高卖出)': Threshold[1],
+        '单次金额': fixed_investment,
+        '买入次数': len(fund_net_value[fund_net_value['定投金额(本金)'] == 1000]),
+        '卖出次数': len(fund_net_value[fund_net_value['定投金额(本金)'] == -1000]),
+        '总购买份额' : '%.3f' % fund_net_value['累计份额'].values[-1],
+        '平均成本' : '%.3f' % fund_net_value['平均成本'].values[-1],
+        '累计收益' : '%.3f' % fund_net_value['累计收益'].values[-1],
+        '累计收益率' : '%.3f' % fund_net_value['累计收益率'].values[-1],
+        '年化收益率' : '%.3f' % fund_net_value['年化收益率'].values[-1]
+    }, index=['Plan'])
+    
+    if df:
+        return fund_net_value
+    else:
+        return Stat_df
