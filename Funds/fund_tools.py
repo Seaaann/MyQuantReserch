@@ -373,7 +373,7 @@ def AIP_Weekly_plot(code, start_date, end_date, fund_category, fixed_investment=
     ax2.set_ylabel("直投累计收益率",fontsize=14)
     plt.show()
 
-def Max_AIP_weekly(code, start_date, end_date, fund_category, fixed_investment, Threshold=(-3.0, 2.0), AIP=True, df=False, Total_investment=100000):
+def Max_AIP_Weekly(code, start_date, end_date, fund_category, fixed_investment, Threshold=(-3.0, 2.0), AIP=True, df=False, Total_investment=100000):
     
     fund_net_value = get_fund_net_worth(code, start_date=start_date, end_date=end_date, fund_category=fund_category)
     
@@ -457,6 +457,26 @@ def Max_AIP_Weekly_Plans(code, start_date, end_date, fund_category, fixed_invest
                        Threshold=threshold_list[i], df=False))
         
     return df
+
+def AIP_Weekly_plot(code, start_date, end_date, fund_category, fixed_investment=1000, max_plan=max_plan, figsize=(12,8)):
+    
+    fig,ax = plt.subplots(figsize=figsize)
+    
+    for plan in max_plan:
+        Max_AIP_df = Max_AIP_Weekly(code, start_date=start_date, end_date=end_date, fund_category=fund_category, fixed_investment=fixed_investment, 
+                                    Threshold=max_plan[plan], AIP=True, df=True)
+    
+        ax.plot(Max_AIP_df.净值日期, Max_AIP_df.累计收益率, label=plan)
+        ax.legend()
+    ax.set_xlabel("净值日期", fontsize=14)
+    ax.set_ylabel("定投累计收益", fontsize=14)
+
+    Max_AIP_direct_df = Max_AIP_Weekly(code, start_date=start_date, end_date=end_date, fund_category=fund_category, fixed_investment=1000, AIP=False, df=True)
+    ax2=ax.twinx()
+    ax2.plot(Max_AIP_direct_df.净值日期, Max_AIP_direct_df["直投累计收益率"], 'r--', label='直投累计收益率')
+    ax2.legend(loc='upper right')
+    ax2.set_ylabel("直投累计收益率",fontsize=14)
+    plt.show()
 
 
 def StochasticAIP_Weekly(code, start_date, end_date, fund_category, fixed_investment, Freq, seed, df=False):
