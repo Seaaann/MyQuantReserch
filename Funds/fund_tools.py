@@ -3,6 +3,7 @@ import pandas as pd
 import akshare as ak
 import matplotlib.pyplot as plt
 import matplotlib
+import itertools
 
 matplotlib.rc("font",family='PingFang HK')
 
@@ -359,7 +360,7 @@ def AIP_Weekly_plot(code, start_date, end_date, fund_category, fixed_investment=
     fig,ax = plt.subplots(figsize=figsize)
     
     for freq in Freq:
-        AIP_df = AIP_weekly(code, start_date=start_date, end_date=end_date, fund_category=fund_category, fixed_investment=fixed_investment, freq=freq, AIP=True, df=True)
+        AIP_df = AIP_Weekly(code, start_date=start_date, end_date=end_date, fund_category=fund_category, fixed_investment=fixed_investment, freq=freq, AIP=True, df=True)
     
         ax.plot(AIP_df.净值日期, AIP_df.累计收益率, label=freq)
         ax.legend()
@@ -368,7 +369,7 @@ def AIP_Weekly_plot(code, start_date, end_date, fund_category, fixed_investment=
 
     AIP_direct_df = AIP_weekly(code, start_date=start_date, end_date=end_date, fund_category=fund_category, fixed_investment=1000, freq='Monday', AIP=False, df=True)
     ax2=ax.twinx()
-    ax2.plot(AIP_df.净值日期, AIP_direct_df["直投累计收益率"], '--', label='直投累计收益率')
+    ax2.plot(AIP_direct_df.净值日期, AIP_direct_df["直投累计收益率"], '--', label='直投累计收益率')
     ax2.legend(loc='upper right')
     ax2.set_ylabel("直投累计收益率",fontsize=14)
     plt.show()
