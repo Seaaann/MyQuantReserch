@@ -276,7 +276,7 @@ def current_open_fund_mergered():
 
 
 
-def AIP_weekly(code, start_date, end_date, fund_category, fixed_investment, freq='Monday', df=False, AIP=True, Total_investment=100000):
+def AIP_Weekly(code, start_date, end_date, fund_category, fixed_investment, freq='Monday', df=False, AIP=True, Total_investment=100000):
     
     
     fund_net_value = get_fund_net_worth(code, start_date=start_date, end_date=end_date, fund_category=fund_category)
@@ -349,7 +349,7 @@ def AIP_Weekly_Plans(Freq, code, start_date, end_date, fund_category, fixed_inve
     df = pd.DataFrame()
     
     for freq in Freq:
-        df = df.append(AIP_weekly(code, start_date=start_date, end_date=end_date, fund_category=fund_category, fixed_investment=fixed_investment, freq=freq, AIP=True, df=False))
+        df = df.append(AIP_Weekly(code, start_date=start_date, end_date=end_date, fund_category=fund_category, fixed_investment=fixed_investment, freq=freq, AIP=True, df=False))
         
     return df
 
