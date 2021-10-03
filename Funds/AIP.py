@@ -187,7 +187,11 @@ def Max_AIP_Weekly_Plans(code, start_date, end_date, fund_category, fixed_invest
 
     return df
 
-def Max_AIP_Weekly_plot(code, start_date, end_date, fund_category, fixed_investment=1000, max_plan=max_plan, figsize=(12,8)):
+def Max_AIP_Weekly_plot(code, start_date, end_date, fund_category, fixed_investment=1000, max_plan={'plan 1': (-1.0, 1.0),
+                                                                                                    'plan 2': (-2.0, 2.0),
+                                                                                                    'plan 3': (-3.0, 3.0),
+                                                                                                    'plan 4': (-3.0, 2.0),
+                                                                                                    'plan 5': (-3.0, 1.0)}, figsize=(12,8)):
 
     fig,ax = plt.subplots(figsize=figsize)
 
@@ -291,11 +295,11 @@ def StochasticAIP_Weekly_Plans(Freq, seed, code, start_date, end_date, fund_cate
     return df
 
 
-def StochasticAIP_Weekly_plot(code, start_date, end_date, fund_category, fixed_investment=1000, Seed=seed, figsize=(12,8)):
+def StochasticAIP_Weekly_plot(code, start_date, end_date, fund_category, fixed_investment=1000, Seed=[1,2,3,4,5], figsize=(12,8)):
 
     fig,ax = plt.subplots(figsize=figsize)
 
-    for s in seed:
+    for s in Seed:
         stochasticAIP_df = StochasticAIP_Weekly(code, start_date=start_date, end_date=end_date, fund_category=fund_category, fixed_investment=fixed_investment,
                                                 Freq=5, seed=s, AIP=True, df=True)
 
