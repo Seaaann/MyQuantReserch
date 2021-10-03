@@ -274,3 +274,10 @@ def current_open_fund_mergered():
 
     
     return df
+
+
+def code_to_name(code):
+
+    df = current_open_fund_mergered()[['基金代码', '基金简称_x']]
+    fund_name = df[df['基金代码'] == code]['基金简称_x'].values[0]
+    return fund_name
