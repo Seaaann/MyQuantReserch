@@ -63,6 +63,7 @@ def get_fund_net_worth(fund_code, start_date, end_date, fund_category):
 
     mask = (df['净值日期'] >= start_date) & (df['净值日期'] <= end_date)
     df = df.loc[mask].reset_index().drop('index', axis=1)
+    df[['单位净值', '日增长率']] = df[['单位净值', '日增长率']].astype(float)
 
     return df
 
