@@ -7,3 +7,5 @@ def annualizer(daliy_return, investment_period):
 
     return annualized_return
 
+
+

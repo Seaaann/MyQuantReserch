@@ -23,14 +23,17 @@ def get_fund_categories(open_fund=False):
     return fund_categories
 
 
-def get_category_all_funds(category):
+def get_category_all_funds():
 
-    df = ak.fund_em_fund_name()
-    df = df[df['基金类型'] == category]
+    Total_df = current_open_fund_mergered()
+    JJcate = np.unique(Total_df['基金大类'].values)
 
-    fund_code = df['基金代码'].values
+    code_cate_dict = {}
 
-    return df, fund_code
+    for cate in JJcate:
+        cate_df = Total_df[(Total_df['基金大类'] == cate) & (Total_df['申购状态'] == '开放申购') & (Total_df['赎回状态'] == '开放赎回') & (Total_df['日增长率'] != '')]
+        code_cate_dict.update({cate: cate_df['基金代码'].values})
+    return code_cate_dict
 
 
 def get_fund_net_worth(fund_code, start_date, end_date, fund_category):
