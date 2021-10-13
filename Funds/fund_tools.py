@@ -285,3 +285,26 @@ def code_to_name(code):
     df = current_open_fund_mergered()[['基金代码', '基金简称_x']]
     fund_name = df[df['基金代码'] == code]['基金简称_x'].values[0]
     return fund_name
+
+
+def get_fund_net_worth_df(code_list, minimum_length=125, data='单位净值'):
+
+    """
+    :param code_list:
+    :param minimum_length:
+    :param data: "单位净值" or "日增长率"
+    :return:
+    """
+
+    date_list = []
+    for code in code_list:
+        date_list.append(ak.fund_em_open_fund_info(fund=code)['净值日期'].values[0])
+        date_list.append(ak.fund_em_open_fund_info(fund=code)['净值日期'].values[-1])
+
+    df = pd.DataFrame(index=pd.date_range(start=min(date_list), end=max(date_list)))
+
+    for code in code_list:
+        fund_df = get_fund_net_worth(code, start_date=min(date_list), end_date=end_date, fund_category='open').set_index('净值日期')[data]
+        if len(fund_df) >= minimum_length:
+            df[code] = fund_df
+    return df

@@ -18,7 +18,7 @@ def AIP_Weekly(code, start_date, end_date, fund_category, fixed_investment, freq
              if fund_net_value['WeekDay'].values[i] == freq:
                     fund_net_value['定投金额(本金)'][i] = fixed_investment
 
-        fund_net_value['累计定投金额(本金)'] = fund_net_value['定投金额(本金)'].cumsum()
+        fund_net_value['累计定投金额(本金)'] = fund_net_value['定投金额(本金)'].cumsum()ß
         fund_net_value['购买份额'] = fund_net_value['定投金额(本金)']/fund_net_value['单位净值']
         fund_net_value['累计份额'] = fund_net_value['购买份额'].cumsum()
         fund_net_value['平均成本'] = fund_net_value['累计定投金额(本金)']/fund_net_value['累计份额']
