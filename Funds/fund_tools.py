@@ -14,7 +14,9 @@ def get_fund_categories(open_fund=False):
 
     if open_fund:
         fund_em_open_fund_daily_df = ak.fund_em_open_fund_daily()
-        df = pd.merge(fund_em_open_fund_daily_df, fund_em_fund_name_df, on="基金代码")
+        df = pd.merge(fund_em_open_fund_daily_df,
+                      fund_em_fund_name_df,
+                      on="基金代码")
 
         fund_categories = np.unique(df["基金类型"].values)
     else:
@@ -31,12 +33,10 @@ def get_category_all_funds():
     code_cate_dict = {}
 
     for cate in JJcate:
-        cate_df = Total_df[
-            (Total_df["基金大类"] == cate)
-            & (Total_df["申购状态"] == "开放申购")
-            & (Total_df["赎回状态"] == "开放赎回")
-            & (Total_df["日增长率"] != "")
-        ]
+        cate_df = Total_df[(Total_df["基金大类"] == cate)
+                           & (Total_df["申购状态"] == "开放申购")
+                           & (Total_df["赎回状态"] == "开放赎回")
+                           & (Total_df["日增长率"] != "")]
         code_cate_dict.update({cate: cate_df["基金代码"].values})
     return code_cate_dict
 
@@ -74,7 +74,6 @@ def get_fund_net_worth(fund_code, start_date, end_date, fund_category):
 
 
 def get_open_fund_rank(category, rank, order_by, ascending=False):
-
     """
     :param category: string, input ['股票型','混合型',"指数型",'QDII','LOF','FOF']
     :param rank: int, return how many rows of the dataframe
@@ -86,38 +85,30 @@ def get_open_fund_rank(category, rank, order_by, ascending=False):
 
     if category == "股票型":
         df = ak.fund_em_open_fund_rank(symbol="股票型").sort_values(
-            by=[order_by], ascending=ascending
-        )
+            by=[order_by], ascending=ascending)
     elif category == "混合型":
         df = ak.fund_em_open_fund_rank(symbol="混合型").sort_values(
-            by=[order_by], ascending=ascending
-        )
+            by=[order_by], ascending=ascending)
     elif category == "债券型":
         df = ak.fund_em_open_fund_rank(symbol="债券型").sort_values(
-            by=[order_by], ascending=ascending
-        )
+            by=[order_by], ascending=ascending)
     elif category == "指数型":
         df = ak.fund_em_open_fund_rank(symbol="指数型").sort_values(
-            by=[order_by], ascending=ascending
-        )
+            by=[order_by], ascending=ascending)
     elif category == "QDII":
         df = ak.fund_em_open_fund_rank(symbol="QDII").sort_values(
-            by=[order_by], ascending=ascending
-        )
+            by=[order_by], ascending=ascending)
     elif category == "LOF":
         df = ak.fund_em_open_fund_rank(symbol="LOF").sort_values(
-            by=[order_by], ascending=ascending
-        )
+            by=[order_by], ascending=ascending)
     elif category == "FOF":
         df = ak.fund_em_open_fund_rank(symbol="FOF").sort_values(
-            by=[order_by], ascending=ascending
-        )
+            by=[order_by], ascending=ascending)
 
     return df.head(rank)
 
 
 def get_etf_rank(rank, order_by, ascending=False):
-
     """
     :param rank: int, return how many rows of the dataframe
     :param order_by: string, input ['近1周', '近1月', '近3月', '近6月',
@@ -134,7 +125,6 @@ def get_etf_rank(rank, order_by, ascending=False):
 
 
 def get_money_fund_rank(rank, order_by, ascending=False):
-
     """
     :param rank: int, return how many rows of the dataframe
     :param order_by: string, input ['万份收益', '年化收益率7日', '年化收益率14日', '年化收益率28日',
@@ -143,7 +133,8 @@ def get_money_fund_rank(rank, order_by, ascending=False):
     :return: dataframe, with specific sorted dataframe
     """
 
-    df = ak.fund_em_money_rank().sort_values(by=[order_by], ascending=ascending)
+    df = ak.fund_em_money_rank().sort_values(by=[order_by],
+                                             ascending=ascending)
     return df.head(rank)
 
 
@@ -159,10 +150,10 @@ def get_fund_cumulative_return(fund_code, start_date, end_date):
     return df
 
 
-def sw_industry_return_plot(
-    start_date, end_date, year_start_date="2021-01-01", save_pic=True
-):
-
+def sw_industry_return_plot(start_date,
+                            end_date,
+                            year_start_date="2021-01-01",
+                            save_pic=True):
     """
     :param start_date: string, start date of the week
     :param end_date: string, end date of the week
@@ -184,12 +175,14 @@ def sw_industry_return_plot(
 
     for i in range(len(industry_code)):
         df1 = ak.sw_index_daily(industry_code[i], startDate, endDate)
-        temp_df1 = df1.set_index("index_code").iloc[:, 3:].astype(float)["close"]
+        temp_df1 = df1.set_index("index_code").iloc[:,
+                                                    3:].astype(float)["close"]
         industry_return = (temp_df1[0] - temp_df1[-1]) / temp_df1[-1]
         industry_weekly_return.append(industry_return)
 
         df2 = ak.sw_index_daily(industry_code[i], year_start_date, end_date)
-        temp_df2 = df2.set_index("index_code").iloc[:, 3:].astype(float)["close"]
+        temp_df2 = df2.set_index("index_code").iloc[:,
+                                                    3:].astype(float)["close"]
         industry_return = (temp_df2[0] - temp_df2[-1]) / temp_df2[-1]
         industry_yearly_return.append(industry_return)
 
@@ -203,36 +196,46 @@ def sw_industry_return_plot(
     fig = plt.figure(figsize=(15, 10))
 
     plt.subplot(1, 2, 1)
-    industry_return_df.sort_values("WeeklyReturn", ascending=True, inplace=True)
+    industry_return_df.sort_values("WeeklyReturn",
+                                   ascending=True,
+                                   inplace=True)
     plt.barh(industry_return_df.Industry, industry_return_df.WeeklyReturn)
     for i in range(len(industry_return_df.WeeklyReturn)):
         value_label = str(industry_return_df.WeeklyReturn[i] * 100)[:5] + "%"
         plt.annotate(
             value_label,
-            xy=(industry_return_df.WeeklyReturn[i], industry_return_df.Industry[i]),
+            xy=(industry_return_df.WeeklyReturn[i],
+                industry_return_df.Industry[i]),
             ha="center",
             va="center",
             size=15,
             color="r",
         )
     plt.title(r"本周收益率" + str(start_date) + "~" + str(end_date))
-    plt.yticks(industry_return_df.Industry, fontproperties="PingFang HK", fontsize=15)
+    plt.yticks(industry_return_df.Industry,
+               fontproperties="PingFang HK",
+               fontsize=15)
 
     plt.subplot(1, 2, 2)
-    industry_return_df.sort_values("YearlyReturn", ascending=True, inplace=True)
+    industry_return_df.sort_values("YearlyReturn",
+                                   ascending=True,
+                                   inplace=True)
     plt.barh(industry_return_df.Industry, industry_return_df.YearlyReturn)
     for i in range(len(industry_return_df.WeeklyReturn)):
         value_label = str(industry_return_df.YearlyReturn[i] * 100)[:5] + "%"
         plt.annotate(
             value_label,
-            xy=(industry_return_df.YearlyReturn[i], industry_return_df.Industry[i]),
+            xy=(industry_return_df.YearlyReturn[i],
+                industry_return_df.Industry[i]),
             ha="center",
             va="center",
             size=15,
             color="r",
         )
     plt.title(r"今年以来收益率" + str((year_start_date.year)))
-    plt.yticks(industry_return_df.Industry, fontproperties="PingFang HK", fontsize=15)
+    plt.yticks(industry_return_df.Industry,
+               fontproperties="PingFang HK",
+               fontsize=15)
 
     if save_pic:
         plt.savefig("申万行业收益率.png", dpi=500)
@@ -262,9 +265,11 @@ def get_index_code_and_name():
     return name_code_dict
 
 
-def main_index_plot(
-    code_list, start_date, end_date, year_start_date="2021-01-01", save_pic=True
-):
+def main_index_plot(code_list,
+                    start_date,
+                    end_date,
+                    year_start_date="2021-01-01",
+                    save_pic=True):
 
     index_df = pd.DataFrame()
     for code in code_list:
@@ -334,7 +339,6 @@ def code_to_name(code):
 
 
 def get_fund_net_worth_df(code_list, minimum_length=125, data="单位净值"):
-
     """
     :param code_list:
     :param minimum_length:
@@ -344,15 +348,20 @@ def get_fund_net_worth_df(code_list, minimum_length=125, data="单位净值"):
 
     date_list = []
     for code in code_list:
-        date_list.append(ak.fund_em_open_fund_info(fund=code)["净值日期"].values[0])
-        date_list.append(ak.fund_em_open_fund_info(fund=code)["净值日期"].values[-1])
+        date_list.append(
+            ak.fund_em_open_fund_info(fund=code)["净值日期"].values[0])
+        date_list.append(
+            ak.fund_em_open_fund_info(fund=code)["净值日期"].values[-1])
 
-    df = pd.DataFrame(index=pd.date_range(start=min(date_list), end=max(date_list)))
+    df = pd.DataFrame(
+        index=pd.date_range(start=min(date_list), end=max(date_list)))
 
     for code in code_list:
         fund_df = get_fund_net_worth(
-            code, start_date=min(date_list), end_date=end_date, fund_category="open"
-        ).set_index("净值日期")[data]
+            code,
+            start_date=min(date_list),
+            end_date=end_date,
+            fund_category="open").set_index("净值日期")[data]
         if len(fund_df) >= minimum_length:
             df[code] = fund_df
     return df
