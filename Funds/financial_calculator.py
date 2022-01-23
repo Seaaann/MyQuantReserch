@@ -1,9 +1,20 @@
 from heapq import merge
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 import math
 
 from fund_tools import get_risk_free_rate
+
+
+def daily_return(df):
+
+    df['日增长率'] = 0
+    for i in range(1, len(df)):
+        df['日增长率'][i] = (df['单位净值'][i] / df['单位净值'][i - 1] - 1) * 100
+
+    return df
 
 
 def return_metrics(df, risk_free=False):
@@ -22,6 +33,24 @@ def max_drawdown(df):
     max_daily_drawdown = daliy_drawdown.rolling(len(df), 1).min()
 
     return max_daily_drawdown.values[-1]
+
+
+def max_drawdown_df(df, PLOT=True):
+
+    if PLOT:
+        roll_max = df['单位净值'].rolling(len(df), 1).max()
+        daliy_drawdown = df['单位净值'] / roll_max - 1.0
+        max_daily_drawdown = daliy_drawdown.rolling(len(df), 1).min()
+
+        fig = plt.figure(figsize=(12, 8))
+        plt.plot(daliy_drawdown, label='日回撤')
+        plt.plot(max_daily_drawdown, label='最大回撤')
+        plt.legend()
+    else:
+        roll_max = df['单位净值'].rolling(len(df), 1).max()
+        daliy_drawdown = df['单位净值'] / roll_max - 1.0
+
+        return daliy_drawdown
 
 
 def risk_metrics(df):
@@ -58,9 +87,9 @@ def calmar(df):
 def win_rate(df):
 
     df['win'] = True
-    for i in range(len(df) - 1):
-        if df['单位净值'][i + 1] / df['单位净值'][i] < 1.0:
-            df['win'][i + 1] = False
+    for i in range(len(df)):
+        if df['日增长率'].values[i] < 0:
+            df['win'][i] = False
 
     win_rate = len(df[df['win'] == True]) / len(df)
     return win_rate

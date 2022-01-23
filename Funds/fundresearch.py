@@ -47,6 +47,11 @@ def fund_vs_benchmark(fund, benchmark_list, start_date, end_date, PLOT=True):
                                                  == benchmark]['名称'].values[0])
     fund_value = fund_value.join(benchmark_df[benchmark_list])
 
+    fund_value['基准指数'] = 0.05 * fund_value[
+        benchmark_list[0]] + 0.95 * fund_value[benchmark_list[1]]
+    index_list.append('基准指数')
+    benchmark_list.append('基准指数')
+
     if PLOT:
         fig = plt.figure(figsize=(12, 8))
 
