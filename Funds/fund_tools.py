@@ -365,3 +365,15 @@ def get_fund_net_worth_df(code_list, minimum_length=125, data="单位净值"):
         if len(fund_df) >= minimum_length:
             df[code] = fund_df
     return df
+
+
+def get_risk_free_rate(start_date, end_date):
+
+    start_date = pd.to_datetime(start_date, format="%Y/%m/%d")
+    end_date = pd.to_datetime(end_date, format="%Y/%m/%d")
+
+    df = ak.bond_zh_us_rate()[['日期', '中国国债收益率10年']]
+    mask = (df["日期"] >= start_date) & (df["日期"] <= end_date)
+    df = df.loc[mask]
+
+    return df
