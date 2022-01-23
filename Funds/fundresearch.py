@@ -62,3 +62,15 @@ def fund_vs_benchmark(fund, benchmark_list, start_date, end_date, PLOT=True):
         plt.title('基金累计收益率与基准指数收益对比')
 
     return fund_value
+
+
+def Fund_Perform_Attribution(df):
+
+    result = {}
+    X = df.iloc[:, 2:]
+    X = sm.add_constant(X)
+    y = df['ret']
+
+    model_fit = sm.OLS(y, X).fit()
+
+    print(model_fit.summary())
