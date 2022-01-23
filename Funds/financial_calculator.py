@@ -50,7 +50,7 @@ def max_drawdown_df(df, PLOT=True):
         roll_max = df['单位净值'].rolling(len(df), 1).max()
         daliy_drawdown = df['单位净值'] / roll_max - 1.0
 
-        return daliy_drawdown
+    return daliy_drawdown
 
 
 def risk_metrics(df):
