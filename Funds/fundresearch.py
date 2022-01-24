@@ -2,12 +2,9 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import akshare as ak
-import datetime
 from datetime import date, timedelta
 import seaborn as sns
-import time
-import random
-import itertools
+import statsmodels.api as sm
 
 from fund_tools import *
 from AIP import *
@@ -74,3 +71,47 @@ def Fund_Perform_Attribution(df):
     model_fit = sm.OLS(y, X).fit()
 
     print(model_fit.summary())
+
+
+def transto_monthlyreturn(df):
+
+    return_bar_df = pd.DataFrame()
+    return_list = []
+    df['year'] = pd.DatetimeIndex(df['净值日期']).year
+    df['month'] = pd.DatetimeIndex(df['净值日期']).month
+    year_list = df['year'].unique()
+
+    for year in year_list:
+        month_list = df[df['year'] == year]['month'].unique()
+        for month in month_list:
+            sub_df = df[(df['year'] == year) & (df['month'] == month)]
+            timestamp = pd.to_datetime(str(year) + '-' + str(month))
+            return_list.append(
+                (sub_df['单位净值'].values[-1] / sub_df['单位净值'].values[0] - 1) *
+                100)
+            return_bar_df[timestamp] = 0
+
+    return_bar_df = return_bar_df.T
+    return_bar_df['ret'] = return_list
+    return return_bar_df
+
+
+def transto_monthlyindex(df):
+
+    index_bar_df = pd.DataFrame()
+    index_list = []
+    df['year'] = pd.DatetimeIndex(df['净值日期']).year
+    df['month'] = pd.DatetimeIndex(df['净值日期']).month
+    year_list = df['year'].unique()
+
+    for year in year_list:
+        month_list = df[df['year'] == year]['month'].unique()
+        for month in month_list:
+            sub_df = df[(df['year'] == year) & (df['month'] == month)]
+            timestamp = pd.to_datetime(str(year) + '-' + str(month))
+            index_list.append((sub_df['单位净值'].values[-1]))
+            index_bar_df[timestamp] = 0
+
+    index_bar_df = index_bar_df.T
+    index_bar_df['Value'] = index_list
+    return index_bar_df
