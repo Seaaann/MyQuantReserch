@@ -15,15 +15,20 @@ def volatility_rank(df, PLOT=True):
     final = ranked.groupby(ranked.index.month).mean()
 
     if PLOT:
+        max_volatility_month = final[final == final.max()].index[0]
+        min_volatility_month = final[final == final.min()].index[0]
         b_plot = plt.bar(x=final.index, height=final)
-        b_plot[1].set_color('g')
-    b_plot[11].set_color('r')
-    for i, v in enumerate(round(final, 2)):
-        plt.text(i + .8, 1, str(v), color='black', fontweight='bold')
-    plt.axhline(final.mean(), ls='--', color='k', label=round(final.mean(), 2))
-    plt.title('Average Monthly Volatility Ranking since {}'.format(
-        df.index.year[0]))
+        b_plot[max_volatility_month - 1].set_color('g')
+        b_plot[min_volatility_month - 1].set_color('r')
+        for i, v in enumerate(round(final, 2)):
+            plt.text(i + .8, 1, str(v), color='black', fontweight='bold')
+        plt.axhline(final.mean(),
+                    ls='--',
+                    color='k',
+                    label=round(final.mean(), 2))
+        plt.title('Average Monthly Volatility Ranking since {}'.format(
+            df.index.year[0]))
 
-    plt.legend()
-    plt.show()
+        plt.legend()
+        plt.show()
     return final
